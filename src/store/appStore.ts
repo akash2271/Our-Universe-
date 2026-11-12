@@ -78,7 +78,7 @@ export const defaultSpecialCards: SpecialCard[] = [
 export const defaultPhotos: MemoryPhoto[] = [
   {
     id: 'p1',
-    url: '',
+    url: '/radiant-life.jpg',
     caption: 'Radiant & full of life',
   },
   {
@@ -137,7 +137,7 @@ ${resolvedOccasion.toUpperCase()}, ${greetingName.toUpperCase()}! ❤️`,
     },
     specialCards: [...defaultSpecialCards],
     photos: [
-      { id: 'p1', url: '', caption: 'Radiant & full of life' },
+      { id: 'p1', url: '/radiant-life.jpg', caption: 'Radiant & full of life' },
       { id: 'p2', url: '/unstoppable-spirit.jpg', caption: 'Unstoppable spirit' },
       { id: 'p3', url: '/couple-moments.jpg', caption: 'Quiet moments of joy' },
     ],

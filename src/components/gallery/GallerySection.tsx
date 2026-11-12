@@ -5,6 +5,7 @@ import { useApp } from '../../hooks/useApp';
 import { saveImage } from '../../store/appStore';
 import coupleMomentsImg from '../../assets/couple-moments.jpg';
 import unstoppableSpiritImg from '../../assets/unstoppable-spirit.jpg';
+import radiantLifeImg from '../../assets/radiant-life.jpg';
 
 export default function GallerySection() {
   const { state, updatePhoto } = useApp();
@@ -68,10 +69,11 @@ export default function GallerySection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 relative z-10">
         {photos.map((photo, idx) => {
           const rotClass = rotations[idx % rotations.length];
+          const isP1 = photo.id === 'p1';
           const isP2 = photo.id === 'p2';
           const isP3 = photo.id === 'p3';
-          const isPermanent = isP2 || isP3;
-          const permanentImg = isP2 ? unstoppableSpiritImg : isP3 ? coupleMomentsImg : null;
+          const isPermanent = isP1 || isP2 || isP3;
+          const permanentImg = isP1 ? radiantLifeImg : isP2 ? unstoppableSpiritImg : isP3 ? coupleMomentsImg : null;
           const currentUrl = permanentImg || photo.url;
 
           return (
@@ -100,7 +102,9 @@ export default function GallerySection() {
                       src={currentUrl}
                       alt={photo.caption}
                       className={`w-full h-full object-cover ${
-                        isP2
+                        isP1
+                          ? 'object-[center_28%] brightness-[1.03] contrast-[1.03] saturate-[1.05]'
+                          : isP2
                           ? 'object-[center_35%] brightness-[1.03] contrast-[1.03] saturate-[1.05]'
                           : isP3
                           ? 'object-[center_46%] brightness-[1.03] contrast-[1.04] saturate-[1.06]'

@@ -20,6 +20,11 @@ import defaultMemories from './defaultMemories.json';
 // Initial seeded memories so Netlify users immediately see the full scrapbook
 export const INITIAL_SEEDED_MEMORIES: TimelineMemory[] = defaultMemories as TimelineMemory[];
 
+// Detect static deployment environments (e.g. Netlify, Vercel, GitHub Pages) without an Express backend
+const isStaticHost =
+  typeof window !== 'undefined' &&
+  !['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 // Helper to safely execute fetch without throwing unexpected end of JSON input
 async function safeFetchJson<T>(
   url: string,
@@ -29,8 +34,16 @@ async function safeFetchJson<T>(
     const res = await fetch(url, options);
     const contentType = res.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
-      const data = await res.json();
-      return { ok: res.ok, status: res.status, data };
+      const text = await res.text();
+      if (!text || !text.trim()) {
+        return { ok: false, status: res.status, data: null };
+      }
+      try {
+        const data = JSON.parse(text) as T;
+        return { ok: res.ok, status: res.status, data };
+      } catch {
+        return { ok: false, status: res.status, data: null };
+      }
     }
     return { ok: false, status: res.status, data: null };
   } catch {
@@ -43,7 +56,20 @@ async function safeFetchJson<T>(
 // ─────────────────────────────────────────────
 
 export async function fetchMe(): Promise<AuthUser | null> {
-  // 1. Try backend server if available
+  // 1. On static hosts like Netlify, read directly from client session
+  if (isStaticHost) {
+    try {
+      const saved = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved) as AuthUser;
+      }
+    } catch {
+      // ignore
+    }
+    return null;
+  }
+
+  // 2. On localhost, try backend server if available
   const result = await safeFetchJson<{ user: AuthUser | null }>('/api/auth/me', {
     credentials: 'include',
   });
@@ -51,7 +77,7 @@ export async function fetchMe(): Promise<AuthUser | null> {
     return result.data.user;
   }
 
-  // 2. Fallback to client session (Netlify / offline)
+  // 3. Fallback to client session
   try {
     const saved = localStorage.getItem(AUTH_STORAGE_KEY);
     if (saved) {
@@ -77,7 +103,26 @@ export async function loginApi(usernameOrPassword: string, passwordOptional?: st
   const trimmedUsername = (username || '').trim();
   const trimmedPassword = (password || '').trim();
 
-  // 1. Try backend server if available
+  // 1. On static deployment (Netlify / Vercel), perform instant offline-first authentication
+  if (isStaticHost) {
+    if (ACCEPTED_PASSWORDS.includes(trimmedPassword)) {
+      const user: AuthUser = {
+        id: 'user-common',
+        username: trimmedUsername || 'ouruniverse',
+        name: 'Divya & Partner',
+        role: 'partner',
+      };
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+      } catch {
+        // ignore
+      }
+      return user;
+    }
+    throw new Error('Incorrect username or password. Please try again.');
+  }
+
+  // 2. On localhost, try backend server
   const result = await safeFetchJson<{ user?: AuthUser; error?: string }>('/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -99,7 +144,7 @@ export async function loginApi(usernameOrPassword: string, passwordOptional?: st
     throw new Error(result.data.error);
   }
 
-  // 2. Client-side authentication fallback (for Netlify / static deployment)
+  // Fallback if backend is not running on localhost
   if (ACCEPTED_PASSWORDS.includes(trimmedPassword)) {
     const user: AuthUser = {
       id: 'user-common',
@@ -119,17 +164,19 @@ export async function loginApi(usernameOrPassword: string, passwordOptional?: st
 }
 
 export async function logoutApi(): Promise<void> {
-  // Try backend logout
-  await safeFetchJson('/api/auth/logout', {
-    method: 'POST',
-    credentials: 'include',
-  });
-
   // Clear client session
   try {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   } catch {
     // ignore
+  }
+
+  if (!isStaticHost) {
+    // Try backend logout
+    await safeFetchJson('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
   }
 }
 
@@ -138,7 +185,21 @@ export async function logoutApi(): Promise<void> {
 // ─────────────────────────────────────────────
 
 export async function fetchMemories(): Promise<TimelineMemory[]> {
-  // 1. Try backend server if available
+  // 1. On static hosts like Netlify, always use persistent IndexedDB storage
+  if (isStaticHost) {
+    try {
+      const stored = await MEMORIES_STORE.getItem<TimelineMemory[]>('memories_list');
+      if (stored && Array.isArray(stored) && stored.length > 0) {
+        return stored;
+      }
+      await MEMORIES_STORE.setItem('memories_list', INITIAL_SEEDED_MEMORIES);
+      return INITIAL_SEEDED_MEMORIES;
+    } catch {
+      return INITIAL_SEEDED_MEMORIES;
+    }
+  }
+
+  // 2. On localhost, try backend server if available
   const result = await safeFetchJson<{ memories: TimelineMemory[] }>('/api/memories', {
     credentials: 'include',
   });
@@ -146,13 +207,12 @@ export async function fetchMemories(): Promise<TimelineMemory[]> {
     return result.data.memories;
   }
 
-  // 2. Client-side storage fallback (Netlify / static)
+  // Fallback to client storage
   try {
     const stored = await MEMORIES_STORE.getItem<TimelineMemory[]>('memories_list');
     if (stored && Array.isArray(stored) && stored.length > 0) {
       return stored;
     }
-    // Seed initial memories if first time on Netlify
     await MEMORIES_STORE.setItem('memories_list', INITIAL_SEEDED_MEMORIES);
     return INITIAL_SEEDED_MEMORIES;
   } catch {
@@ -161,16 +221,18 @@ export async function fetchMemories(): Promise<TimelineMemory[]> {
 }
 
 export async function createMemoryApi(memoryData: Partial<TimelineMemory>): Promise<TimelineMemory> {
-  // 1. Try backend server if available
-  const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>('/api/memories', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(memoryData),
-  });
+  // 1. Try backend server if on localhost
+  if (!isStaticHost) {
+    const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>('/api/memories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(memoryData),
+    });
 
-  if (result.ok && result.data?.memory) {
-    return result.data.memory;
+    if (result.ok && result.data?.memory) {
+      return result.data.memory;
+    }
   }
 
   // 2. Client-side storage fallback (Netlify / static)
@@ -198,16 +260,18 @@ export async function createMemoryApi(memoryData: Partial<TimelineMemory>): Prom
 }
 
 export async function updateMemoryApi(id: string, memoryData: Partial<TimelineMemory>): Promise<TimelineMemory> {
-  // 1. Try backend server if available
-  const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>(`/api/memories/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(memoryData),
-  });
+  // 1. Try backend server if on localhost
+  if (!isStaticHost) {
+    const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>(`/api/memories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(memoryData),
+    });
 
-  if (result.ok && result.data?.memory) {
-    return result.data.memory;
+    if (result.ok && result.data?.memory) {
+      return result.data.memory;
+    }
   }
 
   // 2. Client-side storage fallback (Netlify / static)
@@ -234,14 +298,16 @@ export async function updateMemoryApi(id: string, memoryData: Partial<TimelineMe
 }
 
 export async function deleteMemoryApi(id: string): Promise<void> {
-  // 1. Try backend server if available
-  const result = await safeFetchJson<{ success: boolean; error?: string }>(`/api/memories/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
+  // 1. Try backend server if on localhost
+  if (!isStaticHost) {
+    const result = await safeFetchJson<{ success: boolean; error?: string }>(`/api/memories/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
 
-  if (result.ok) {
-    return;
+    if (result.ok) {
+      return;
+    }
   }
 
   // 2. Client-side storage fallback (Netlify / static)
@@ -266,18 +332,20 @@ async function filesToBase64(files: File[]): Promise<string[]> {
 export async function uploadPhotosApi(files: File[]): Promise<string[]> {
   if (!files || files.length === 0) return [];
 
-  // 1. Try backend server if available
-  const formData = new FormData();
-  files.forEach((file) => formData.append('photos', file));
+  // 1. Try backend server if on localhost
+  if (!isStaticHost) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('photos', file));
 
-  const result = await safeFetchJson<{ urls: string[]; error?: string }>('/api/upload', {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
+    const result = await safeFetchJson<{ urls: string[]; error?: string }>('/api/upload', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
 
-  if (result.ok && Array.isArray(result.data?.urls)) {
-    return result.data.urls;
+    if (result.ok && Array.isArray(result.data?.urls)) {
+      return result.data.urls;
+    }
   }
 
   // 2. Client-side storage fallback (Netlify / static): convert to Base64
@@ -292,21 +360,23 @@ export async function attachPhotosToMemoryApi(memoryId: string, files: File[]): 
     return mem;
   }
 
-  // 1. Try backend server if available
-  const formData = new FormData();
-  files.forEach((file) => formData.append('photos', file));
+  // 1. Try backend server if on localhost
+  if (!isStaticHost) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('photos', file));
 
-  const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>(
-    `/api/memories/${memoryId}/photos`,
-    {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
+    const result = await safeFetchJson<{ memory: TimelineMemory; error?: string }>(
+      `/api/memories/${memoryId}/photos`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      }
+    );
+
+    if (result.ok && result.data?.memory) {
+      return result.data.memory;
     }
-  );
-
-  if (result.ok && result.data?.memory) {
-    return result.data.memory;
   }
 
   // 2. Client-side storage fallback (Netlify / static)

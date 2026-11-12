@@ -1,47 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Camera, Heart, ChevronDown } from 'lucide-react';
+import { Sparkles, Heart, ChevronDown } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../../hooks/useApp';
-import { saveImage, loadImage } from '../../store/appStore';
+import divyaPortrait from '../../assets/divya-portrait.jpg';
 
 export default function HeroSection() {
-  const { state, updateSettings } = useApp();
-  const name = state.settings.partnerName || 'My Love';
+  const { state } = useApp();
+  const name = state.settings.partnerName || 'Divya';
   const occasion = state.settings.occasionTitle || 'Happy Birthday';
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [photoUrl, setPhotoUrl] = useState<string>(state.settings.heroPhotoUrl || '');
   const [loveCount, setLoveCount] = useState<number>(100);
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
-
-  useEffect(() => {
-    if (state.settings.heroPhotoUrl) {
-      if (state.settings.heroPhotoUrl.startsWith('data:') || state.settings.heroPhotoUrl.startsWith('http')) {
-        setPhotoUrl(state.settings.heroPhotoUrl);
-      } else {
-        loadImage(state.settings.heroPhotoUrl).then((img) => {
-          if (img) setPhotoUrl(img);
-          else setPhotoUrl('');
-        });
-      }
-    } else {
-      setPhotoUrl('');
-    }
-  }, [state.settings.heroPhotoUrl]);
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      setPhotoUrl(base64);
-      const key = await saveImage('hero-photo', base64);
-      updateSettings({ heroPhotoUrl: key });
-    };
-    reader.readAsDataURL(file);
-  };
 
   const handleSendLove = () => {
     setLoveCount((prev) => prev + 1);
@@ -119,53 +88,30 @@ export default function HeroSection() {
         {/* Outer glowing frame */}
         <div className="relative p-3 rounded-[38px] bg-gradient-to-tr from-rose-200 via-amber-100/90 to-rose-300 shadow-[0_25px_60px_-10px_rgba(244,114,182,0.32)] ring-1 ring-white/90">
           <div className="relative w-68 h-84 sm:w-80 sm:h-100 rounded-[30px] overflow-hidden bg-white flex items-center justify-center border border-white/90 shadow-inner">
-            {photoUrl ? (
-              <img
-                src={photoUrl}
-                alt={`${name}'s Birthday Portrait`}
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-rose-50/70 via-white to-pink-50/70 text-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-rose-100 to-pink-50 flex items-center justify-center mb-4 text-rose-500 shadow-inner ring-4 ring-rose-50">
-                  <Heart size={44} className="fill-rose-400 text-rose-400 animate-pulse" />
-                </div>
-                <h3 className="font-script text-3xl text-rose-600 font-bold">{name}</h3>
-                <p className="font-sans text-xs text-midnight/50 mt-1 uppercase tracking-widest font-semibold">
-                  The Light Of My Life
-                </p>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-rose-500 text-white text-xs font-sans font-medium shadow-sm hover:bg-rose-600 transition-colors cursor-pointer"
-                >
-                  <Camera size={13} />
-                  <span>Add Her Photo</span>
-                </button>
-              </div>
-            )}
+            <img
+              src={divyaPortrait}
+              alt={`${name}'s Birthday Portrait`}
+              className="w-full h-full object-cover object-[center_18%] brightness-[1.03] contrast-[1.02] saturate-[1.04] group-hover:scale-104 transition-transform duration-700 ease-out"
+            />
+
+            {/* Soft romantic ambient gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-rose-950/60 via-transparent to-rose-900/10 pointer-events-none" />
 
             {/* Corner floating badge */}
-            <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-[11px] font-script text-rose-600 font-bold shadow-sm flex items-center gap-1">
+            <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-rose-100 text-[11px] font-script text-rose-600 font-bold shadow-md flex items-center gap-1 pointer-events-none">
               <span>Pure Radiance</span>
               <Sparkles size={11} className="text-amber-400" />
             </div>
 
-            {/* Photo upload trigger */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-3 right-3 p-3 rounded-full bg-white/95 text-midnight hover:text-rose-600 hover:scale-110 shadow-lg backdrop-blur-md transition-all duration-200 cursor-pointer border border-rose-200/80"
-              title="Change Portrait"
-              aria-label="Upload photo"
-            >
-              <Camera size={16} />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              className="hidden"
-            />
+            {/* Bottom subtitle matching the romantic UI */}
+            <div className="absolute bottom-0 inset-x-0 p-4 pt-12 bg-gradient-to-t from-midnight/70 via-midnight/25 to-transparent pointer-events-none flex flex-col items-center text-center">
+              <h3 className="font-script text-3xl sm:text-4xl text-white font-bold drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">
+                {name}
+              </h3>
+              <p className="font-sans text-[10px] sm:text-xs text-rose-100 uppercase tracking-widest font-semibold drop-shadow-[0_1px_4px_rgba(0,0,0,0.65)] mt-0.5">
+                The Light Of My Life
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>

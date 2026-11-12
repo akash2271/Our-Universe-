@@ -83,7 +83,7 @@ export const defaultPhotos: MemoryPhoto[] = [
   },
   {
     id: 'p2',
-    url: '',
+    url: '/unstoppable-spirit.jpg',
     caption: 'Unstoppable spirit',
   },
   {
@@ -138,7 +138,7 @@ ${resolvedOccasion.toUpperCase()}, ${greetingName.toUpperCase()}! ❤️`,
     specialCards: [...defaultSpecialCards],
     photos: [
       { id: 'p1', url: '', caption: 'Radiant & full of life' },
-      { id: 'p2', url: '', caption: 'Unstoppable spirit' },
+      { id: 'p2', url: '/unstoppable-spirit.jpg', caption: 'Unstoppable spirit' },
       { id: 'p3', url: '/couple-moments.jpg', caption: 'Quiet moments of joy' },
     ],
   };

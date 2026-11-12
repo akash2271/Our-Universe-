@@ -4,6 +4,7 @@ import { Camera, Heart, Sparkles } from 'lucide-react';
 import { useApp } from '../../hooks/useApp';
 import { saveImage } from '../../store/appStore';
 import coupleMomentsImg from '../../assets/couple-moments.jpg';
+import unstoppableSpiritImg from '../../assets/unstoppable-spirit.jpg';
 
 export default function GallerySection() {
   const { state, updatePhoto } = useApp();
@@ -67,8 +68,11 @@ export default function GallerySection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 relative z-10">
         {photos.map((photo, idx) => {
           const rotClass = rotations[idx % rotations.length];
+          const isP2 = photo.id === 'p2';
           const isP3 = photo.id === 'p3';
-          const currentUrl = isP3 ? (photo.url || coupleMomentsImg) : photo.url;
+          const isPermanent = isP2 || isP3;
+          const permanentImg = isP2 ? unstoppableSpiritImg : isP3 ? coupleMomentsImg : null;
+          const currentUrl = permanentImg || photo.url;
 
           return (
             <motion.div
@@ -84,7 +88,7 @@ export default function GallerySection() {
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 h-5.5 bg-amber-100/95 border border-amber-200/90 -rotate-2 rounded-xs z-20 pointer-events-none shadow-xs flex items-center justify-center gap-1.5 backdrop-blur-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
                 <span className="text-[9px] font-sans uppercase tracking-widest text-amber-800/80 font-bold">
-                  {isP3 ? 'forever precious ✨' : 'cherished ✨'}
+                  {isPermanent ? 'forever precious ✨' : 'cherished ✨'}
                 </span>
               </div>
 
@@ -96,7 +100,11 @@ export default function GallerySection() {
                       src={currentUrl}
                       alt={photo.caption}
                       className={`w-full h-full object-cover ${
-                        isP3 ? 'object-[center_46%] brightness-[1.03] contrast-[1.04] saturate-[1.06]' : ''
+                        isP2
+                          ? 'object-[center_35%] brightness-[1.03] contrast-[1.03] saturate-[1.05]'
+                          : isP3
+                          ? 'object-[center_46%] brightness-[1.03] contrast-[1.04] saturate-[1.06]'
+                          : ''
                       } group-hover:scale-105 transition-transform duration-700 ease-out`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-rose-950/25 via-transparent to-transparent pointer-events-none" />
@@ -116,7 +124,7 @@ export default function GallerySection() {
                 )}
 
                 {/* Upload camera button only for customizable photos without a permanent image */}
-                {!isP3 && (
+                {!isPermanent && (
                   <>
                     <button
                       onClick={() => fileInputRef.current[photo.id]?.click()}

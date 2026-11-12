@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Camera, Heart, Sparkles } from 'lucide-react';
 import { useApp } from '../../hooks/useApp';
 import { saveImage } from '../../store/appStore';
+import coupleMomentsImg from '../../assets/couple-moments.jpg';
 
 export default function GallerySection() {
   const { state, updatePhoto } = useApp();
@@ -66,6 +67,8 @@ export default function GallerySection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10 relative z-10">
         {photos.map((photo, idx) => {
           const rotClass = rotations[idx % rotations.length];
+          const isP3 = photo.id === 'p3';
+          const currentUrl = isP3 ? (photo.url || coupleMomentsImg) : photo.url;
 
           return (
             <motion.div
@@ -78,18 +81,26 @@ export default function GallerySection() {
               className={`p-4 pb-6 bg-white rounded-[28px] border border-rose-200/80 shadow-[0_16px_40px_-8px_rgba(244,114,182,0.2)] hover:shadow-[0_24px_50px_-8px_rgba(244,114,182,0.32)] transition-all duration-300 flex flex-col group relative ${rotClass}`}
             >
               {/* Cute Washi Tape sticker */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-5 bg-amber-100/90 border border-amber-200/80 -rotate-2 rounded-xs z-20 pointer-events-none shadow-xs flex items-center justify-center">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 h-5.5 bg-amber-100/95 border border-amber-200/90 -rotate-2 rounded-xs z-20 pointer-events-none shadow-xs flex items-center justify-center gap-1.5 backdrop-blur-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                <span className="text-[9px] font-sans uppercase tracking-widest text-amber-800/80 font-bold">
+                  {isP3 ? 'forever precious ✨' : 'cherished ✨'}
+                </span>
               </div>
 
               {/* Photo Frame */}
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-b from-rose-50/70 via-white to-pink-50/70 flex items-center justify-center border border-rose-100/80">
-                {photo.url ? (
-                  <img
-                    src={photo.url}
-                    alt={photo.caption}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-b from-rose-50/70 via-white to-pink-50/70 flex items-center justify-center border border-rose-100/80 shadow-inner">
+                {currentUrl ? (
+                  <>
+                    <img
+                      src={currentUrl}
+                      alt={photo.caption}
+                      className={`w-full h-full object-cover ${
+                        isP3 ? 'object-[center_46%] brightness-[1.03] contrast-[1.04] saturate-[1.06]' : ''
+                      } group-hover:scale-105 transition-transform duration-700 ease-out`}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-rose-950/25 via-transparent to-transparent pointer-events-none" />
+                  </>
                 ) : (
                   <div className="flex flex-col items-center justify-center p-6 text-center text-rose-300">
                     <div className="w-16 h-16 rounded-full bg-rose-100/80 flex items-center justify-center mb-3 text-rose-500 shadow-inner">
@@ -104,24 +115,28 @@ export default function GallerySection() {
                   </div>
                 )}
 
-                {/* Upload camera button */}
-                <button
-                  onClick={() => fileInputRef.current[photo.id]?.click()}
-                  className="absolute bottom-3 right-3 p-2.5 rounded-full bg-white/95 text-midnight hover:text-rose-600 hover:scale-110 shadow-md backdrop-blur-md transition-all cursor-pointer border border-rose-200/80"
-                  title="Upload Photo"
-                  aria-label="Upload photo"
-                >
-                  <Camera size={15} />
-                </button>
-                <input
-                  ref={(el) => {
-                    fileInputRef.current[photo.id] = el;
-                  }}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleUpload(photo.id, e)}
-                  className="hidden"
-                />
+                {/* Upload camera button only for customizable photos without a permanent image */}
+                {!isP3 && (
+                  <>
+                    <button
+                      onClick={() => fileInputRef.current[photo.id]?.click()}
+                      className="absolute bottom-3 right-3 p-2.5 rounded-full bg-white/95 text-midnight hover:text-rose-600 hover:scale-110 shadow-md backdrop-blur-md transition-all cursor-pointer border border-rose-200/80"
+                      title="Upload Photo"
+                      aria-label="Upload photo"
+                    >
+                      <Camera size={15} />
+                    </button>
+                    <input
+                      ref={(el) => {
+                        fileInputRef.current[photo.id] = el;
+                      }}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleUpload(photo.id, e)}
+                      className="hidden"
+                    />
+                  </>
+                )}
               </div>
 
               {/* Polaroid bottom caption */}

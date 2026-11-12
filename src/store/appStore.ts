@@ -88,7 +88,7 @@ export const defaultPhotos: MemoryPhoto[] = [
   },
   {
     id: 'p3',
-    url: '',
+    url: '/couple-moments.jpg',
     caption: 'Quiet moments of joy',
   },
 ];
@@ -139,7 +139,7 @@ ${resolvedOccasion.toUpperCase()}, ${greetingName.toUpperCase()}! ❤️`,
     photos: [
       { id: 'p1', url: '', caption: 'Radiant & full of life' },
       { id: 'p2', url: '', caption: 'Unstoppable spirit' },
-      { id: 'p3', url: '', caption: 'Quiet moments of joy' },
+      { id: 'p3', url: '/couple-moments.jpg', caption: 'Quiet moments of joy' },
     ],
   };
 }

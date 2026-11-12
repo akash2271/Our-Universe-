@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+@import "tailwindcss";
+
+/* ── Custom Theme Tokens (Tailwind v4) ── */
+@theme {
+  --color-blush: #FDE8ED;
+  --color-blush-soft: #FFF0F3;
+  --color-rose: #FB7185;
+  --color-rose-light: #FDA4AF;
+  --color-rose-dark: #E11D48;
+  --color-rose-velvet: #9F1239;
+  --color-champagne: #F59E0B;
+  --color-champagne-light: #FEF3C7;
+  --color-champagne-gold: #D97706;
+  --color-cream: #FFF9F6;
+  --color-parchment: #FAF3E8;
+  --color-lavender: #EDE9FE;
+  --color-lavender-soft: #F5F3FF;
+  --color-midnight: #1E1224;
+  --color-midnight-light: #321B3C;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-script: 'Dancing Script', cursive;
+}
+
+/* ── Base Styles ── */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #FFF9F6;
+    background-image: 
+      radial-gradient(ellipse 90% 60% at 20% 0%, rgba(254, 205, 211, 0.45) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 50% at 85% 15%, rgba(253, 230, 138, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 90% 70% at 50% 50%, rgba(252, 231, 243, 0.4) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 60% at 85% 85%, rgba(237, 233, 254, 0.45) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 60% at 15% 90%, rgba(254, 215, 170, 0.35) 0%, transparent 50%),
+      linear-gradient(180deg, #FFF9F6 0%, #FFF0F4 25%, #FFF8F2 50%, #FAF5FF 75%, #FFF2F6 100%);
+    background-attachment: fixed;
+    color: var(--color-midnight);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #FECDD3;
+    color: #881337;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #FFF0F3;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #FDA4AF 0%, #F43F5E 100%);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E11D48;
+  }
+}
+
+/* ── Loving & Genuine Utility Classes ── */
+@layer utilities {
+  .font-script {
+    font-family: var(--font-script);
+  }
+
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  /* Ultra-refined Frosted Rose Glass */
+  .glass {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(251, 113, 133, 0.22);
+    box-shadow: 0 10px 30px -10px rgba(244, 63, 94, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  }
+
+  .glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 245, 247, 0.78) 100%);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(251, 113, 133, 0.25);
+    box-shadow: 0 14px 38px -10px rgba(244, 63, 94, 0.14), 0 0 0 1px rgba(255, 255, 255, 0.95) inset;
+  }
+
+  .glass-card-warm {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 250, 243, 0.82) 100%);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    box-shadow: 0 14px 38px -10px rgba(245, 158, 11, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.95) inset;
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 113, 133, 0.2);
+    box-shadow: 0 4px 16px -2px rgba(244, 63, 94, 0.1);
+  }
+
+  /* Text Gradients */
+  .text-gradient-rose {
+    background: linear-gradient(135deg, #BE123C 0%, #E11D48 35%, #F43F5E 70%, #FB7185 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-sunset {
+    background: linear-gradient(135deg, #E11D48 0%, #F59E0B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #B45309 0%, #D97706 40%, #F59E0B 75%, #FCD34D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Romantic Glows */
+  .glow-rose {
+    box-shadow: 0 0 25px rgba(244, 63, 94, 0.3), 0 0 50px rgba(244, 63, 94, 0.15);
+  }
+
+  .glow-candle {
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.85), 0 0 50px rgba(245, 158, 11, 0.45);
+  }
+
+  .glow-soft {
+    box-shadow: 0 10px 30px -5px rgba(244, 114, 182, 0.25);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(244, 63, 94, 0.35), 0 0 40px rgba(251, 113, 133, 0.2);
+  }
+
+  /* Heirloom Polaroid Card */
+  .polaroid-card {
+    background: #FFFFFF;
+    box-shadow: 0 16px 42px -8px rgba(30, 18, 36, 0.13), 0 4px 14px rgba(244, 63, 94, 0.08);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Vintage 3D Wax Seal with Heart */
+  .wax-seal {
+    background: radial-gradient(circle at 35% 35%, #F43F5E 0%, #BE123C 60%, #881337 100%);
+    box-shadow: 0 6px 18px rgba(136, 19, 55, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.4), inset 0 -3px 6px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Love Letter Parchment */
+  .letter-parchment {
+    background: linear-gradient(180deg, #FFFDF8 0%, #FDF7ED 100%);
+    background-image:
+      repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        rgba(244, 114, 182, 0.12) 31px,
+        rgba(244, 114, 182, 0.12) 32px
+      );
+    box-shadow: 0 20px 60px -15px rgba(30, 18, 36, 0.14), 0 0 0 1px rgba(244, 114, 182, 0.2);
+    line-height: 32px;
+  }
+
+  /* Shimmering Gold Foil */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(245, 158, 11, 0.2) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Breathing pulse glow */
+  .pulse-heart {
+    animation: pulseHeart 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulseHeart {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+    }
+    50% {
+      transform: scale(1.06);
+      box-shadow: 0 0 35px rgba(244, 63, 94, 0.6), 0 0 50px rgba(251, 113, 133, 0.3);
+    }
+  }
+
+  .float-gentle {
+    animation: floatGentle 5s ease-in-out infinite;
+  }
+
+  @keyframes floatGentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+}
+
+/* ── Loading Screen ── */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFF9F6;
+}
+
+.loading-heart {
+  width: 48px;
+  height: 48px;
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.18); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.12); }
+}

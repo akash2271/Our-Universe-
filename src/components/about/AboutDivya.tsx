@@ -111,11 +111,7 @@ export default function AboutDivya() {
                 </p>
               </div>
 
-              <div className="pt-5 mt-6 border-t border-rose-100/80 flex items-center justify-between text-xs font-sans text-midnight/50">
-                <span className="flex items-center gap-1 font-serif italic text-rose-600">
-                  <Heart size={12} className="fill-rose-400 text-rose-400 inline" />
-                  Beloved quality
-                </span>
+              <div className="pt-4 mt-6 border-t border-rose-100/80 flex items-center justify-end text-xs font-sans text-midnight/50">
                 <span className="font-script text-base text-rose-600 font-semibold">for {name}</span>
               </div>
             </motion.div>
